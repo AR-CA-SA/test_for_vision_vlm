@@ -1,19 +1,30 @@
-import cv2 as cv
+import cv2 
 import numpy as np
 import  asyncio
 import threading
 import time
+import sys
+from multiprocessing import Process
+from multiprocessing.shared_memory import SharedMemory
 
-cap = cv.VideoCapture(cv.CAP_V4L)
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    cv.imshow("x",gray)
 
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        break
-cap.release()
-cv.destroyAllWindows()
+shared_frame = SharedMemory(name="sharedFrame", size=8,create=True)
 
+
+
+def video_capture(video_url):
+    cap = cv2.VideoCapture(video_url)
+    while cap.isOpened():
+        success, frame = cap.read()
+        if not success:
+            break
+        cv2.imshow("s",frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+if __name__ == "__name__":
+    video_capture(video_url="test_video.mp4")
