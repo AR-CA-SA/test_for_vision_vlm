@@ -1,16 +1,19 @@
-import cv2 
+import cv2
+import json 
 from argparse import ArgumentParser
 import numpy as np
 import threading
 import time
 import os
-from multiprocessing import Process
 from multiprocessing.shared_memory import SharedMemory
 import subprocess
 from ultralytics import YOLO
-
-model = YOLO("yolo26n-seg.pt")
-shared_frame = SharedMemory(name="sharedFrame", size=8,create=True)
+from colors import bcolors
+model = YOLO("yolo26n-seg.pt", verbose=False)
+shared_a = None
+shared_dtype = None
+shared_shape  = None
+size = 0
 def video(pathIn):
 
     video = cv2.VideoCapture(pathIn)
@@ -22,6 +25,7 @@ def video(pathIn):
         if not success:
             print("died")
             break
+        
         resized_frame = cv2.resize(frame, (1200,800), interpolation=cv2.INTER_AREA)
         results = model(resized_frame)
 
@@ -34,6 +38,8 @@ def video(pathIn):
     cv2.destroyAllWindows()
 
 def extract_frame(pathIn, pathOut):
+    global shared_a
+    global size
     os.makedirs(pathOut, exist_ok=True)
     count = 0
     video = cv2.VideoCapture(pathIn)
@@ -44,9 +50,17 @@ def extract_frame(pathIn, pathOut):
         if not success or frame is None or frame.size == 0:
             break
         frame_array = np.array(frame) 
-        shared_np_mem = np.ndarray(frame_array.shape, frame_array.dtype, buffer=shared_frame.buf)
-        shared_np_mem[:] = frame_array[:]
+        if shared_a is None:
+            size = frame_array.nbytes
+            shared_a = SharedMemory(name="shared_frame" ,size =  frame_array.nbytes, create = True)
+            data = {"dtype ": frame_array.nbytes , "shape" :  frame_array.shape}
+            with open("frame_properties" , "w") as f:
+                json.dump(data, f)
+        shared_frame = np.ndarray(frame_array.shape,  frame_array.dtype, buffer=shared_a.buf)
+        print(frame_array.shape , frame_array.dtype)
+        shared_frame[:] = frame_array[:]
         out_path = os.path.join(pathOut, f"frame{count}.jpg")
+        print(bcolors.WARNING, f" the size of the allocated memory is {size}")
         results = model(frame)
         cv2.imwrite(out_path, results[0].plot())
         count  += 5   
@@ -54,6 +68,7 @@ def extract_frame(pathIn, pathOut):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
+
     parser = ArgumentParser()
     parser.add_argument("--pathIn" ,required=True ,help="path to video")
     parser.add_argument("--pathOut" , required=True, help = "path to images")
@@ -66,5 +81,7 @@ if __name__ == "__main__":
     t2.join()
     subprocess.run("rm -rf frames/*", shell= True ,  check = True)
 
-    shared_frame.close()
-    shared_frame.unlink()
+    if shared_a is not None:
+
+        shared_a.close()
+        shared_a.unlink()
