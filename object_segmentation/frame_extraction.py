@@ -9,15 +9,24 @@ from argparse import ArgumentParser
 import subprocess
 import threading
 from ultralytics.models.sam  import SAM3SemanticPredictor
+from multiprocessing import Queue
+from multiprocessing.managers import BaseManager
+
 overrides = dict(conf=0.25, task="segment", mode="predict" , model="./models/sam3.pt", imgsz = 560)
 
 DETECT_INTERVAL = 2
 HOUSEHOLD_PROMPTS = [
     "spoon", "pan" , "plate", "mug"
 ]
+shared_queue = Queue()
 
 
-model_sam_3 = SAM3SemanticPredictor(overrides=overrides,)
+
+class QueueManager(BaseManager):
+    pass
+
+
+model_sam_3 = SAM3SemanticPredictor(overrides=overrides)
 
 
 def save_detected_objects(frame, results, pathOut):
@@ -32,13 +41,17 @@ def save_detected_objects(frame, results, pathOut):
             label = names.get(cls_id,str(cls_id)   )
         else:
             label = names[cls_id]
-        if crop.size == 0:
+        if crop.size == 0 or crop.shape[0] < 100 or crop.shape[1] < 100:
             continue
 
-        out_path = os.path.join(pathOut, f"object_{label}_number_{i}.jpg")
+        out_path = os.path.join(pathOut, f"object_{label}_number_{i}_size{crop.shape}.jpg")
+        shared_queue.put(out_path)
         ok = cv2.imwrite(out_path, crop)
+
+
         if not ok:
-            print(bcolors.FAIL + f"failed to write image_crop{i}.jpg" + bcolors.ENDC )
+            print(bcolors.FAIL + f"failed to write image_crop{i}_size{crop.shape}.jpg" + bcolors.ENDC )
+        
 def crop_image(frame):
     x , y , rgb = frame.shape
     print("before transformation : ", frame.shape)
@@ -75,6 +88,14 @@ def video_frame_segmentation(pathIn,pathOut):
         video.release()
         cv2.destroyAllWindows()
 
+
+
+
+def initialize_server():
+    QueueManager.register('get_queue', callable=lambda: shared_queue)
+    manager = QueueManager(address=('', 50000), authkey=b'abc')
+    server = manager.get_server()
+    server.serve_forever()   
 def video(pathIn):
         video= cv2.VideoCapture(pathIn) 
         while video.isOpened():
@@ -89,6 +110,9 @@ def video(pathIn):
         video.release()
         cv2.destroyAllWindows()
 if __name__ == "__main__":
+
+
+
     print(torch.cuda.is_available())  
     print(torch.cuda.get_device_name(0))    
     parser = ArgumentParser()
@@ -97,12 +121,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
     t1 = threading.Thread(target=video,args=(args.pathIn,))
     t2 = threading.Thread(target=video_frame_segmentation,args=(args.pathIn,args.pathOut))
+    t3 = threading.Thread(target=initialize_server)
     try:
         t1.start()
         t2.start()
+        t3.start()
         t1.join()
         t2.join()
-    finally:       
-        subprocess.run("rm -rf frames/*", shell= True ,  check = True)
-        subprocess.run("rm -rf .runs/segment/*", shell= True ,  check = True)
+        t33.join()
+    finally:
+        try:
+           time.sleep(80800)
+        except KeyboardInterrupt:
+            print("\n program terminated")
+            subprocess.run("rm -rf frames/*", shell= True ,  check = True)
+            subprocess.run("rm -rf .runs/segment/*", shell= True ,  check = True)
   
