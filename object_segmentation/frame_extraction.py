@@ -13,21 +13,19 @@ from multiprocessing import Queue
 from multiprocessing.managers import BaseManager
 
 overrides = dict(conf=0.25, task="segment", mode="predict" , model="./models/sam3.pt", imgsz = 560)
-
+import queue
 DETECT_INTERVAL = 2
 HOUSEHOLD_PROMPTS = [
     "spoon", "pan" , "plate", "mug"
 ]
-shared_queue = Queue()
 
 
-
-class QueueManager(BaseManager):
-    pass
-
+shared_queue = queue.Queue()
 
 model_sam_3 = SAM3SemanticPredictor(overrides=overrides)
 
+class QueueManager(BaseManager):
+    pass
 
 def save_detected_objects(frame, results, pathOut):
     print(bcolors.WARNING + f"{results[0].boxes}" + bcolors.ENDC)
@@ -96,6 +94,7 @@ def initialize_server():
     manager = QueueManager(address=('', 50000), authkey=b'abc')
     server = manager.get_server()
     server.serve_forever()   
+
 def video(pathIn):
         video= cv2.VideoCapture(pathIn) 
         while video.isOpened():
@@ -122,18 +121,23 @@ if __name__ == "__main__":
     t1 = threading.Thread(target=video,args=(args.pathIn,))
     t2 = threading.Thread(target=video_frame_segmentation,args=(args.pathIn,args.pathOut))
     t3 = threading.Thread(target=initialize_server)
+    t3.daemon = True
     try:
         t1.start()
         t2.start()
         t3.start()
         t1.join()
         t2.join()
-        t33.join()
+
+        for thread in threading.enumerate():
+            print(f"thread name : {thread.name}, thread is alive {thread.is_alive()}")
+        print(f"before :  is the queue empty? : {shared_queue.empty()} , from the queue get {shared_queue.get()}, after : is the queue empty? {shared_queue.empty()}")
     finally:
         try:
            time.sleep(80800)
         except KeyboardInterrupt:
-            print("\n program terminated")
             subprocess.run("rm -rf frames/*", shell= True ,  check = True)
             subprocess.run("rm -rf .runs/segment/*", shell= True ,  check = True)
+            print("\n program terminated")
+
   
