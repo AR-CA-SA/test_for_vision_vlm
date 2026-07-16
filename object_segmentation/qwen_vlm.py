@@ -1,6 +1,8 @@
 from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
 import torch 
 torch.cuda.empty_cache()
+
+from bisect import bisect ,insort
 # default: Load the model on the available device(s)
 model = Qwen3VLForConditionalGeneration.from_pretrained(
     "Qwen/Qwen3-VL-8B-Thinking", dtype="auto", device_map="auto"
@@ -48,3 +50,9 @@ output_text = processor.batch_decode(
     generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
 )
 print(output_text)
+
+
+"""
+the approach to swap nodes in pairs foron a linked
+
+"""

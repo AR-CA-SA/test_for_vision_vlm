@@ -6,8 +6,18 @@ import signal
 from openai import OpenAI
 import time, random
 import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+
+PROMPT = """
 
 
+
+The following image is a bowl made of stainlness steel, the weight of the object is 247g.
+What would be  the dominant frequency and average amplitude (db)  of the sound at the moment of impact
+if the household object were to be dropped from a distance of 86cm to the floor.
+Output format:
+{DF : {your_prediction} , IN : {your_prediction}}"""
 
 # Signal handling for interruption
 interrupted = False
@@ -174,6 +184,13 @@ if __name__ == "__main__":
     
     vtt = VisionToText()
     
-    result = vtt.viz_to_text(img='default', prompt="Describe this image briefly.")
+    result = vtt.viz_to_text(img='image.jpg', prompt = PROMPT)
     print(result) 
-        
+
+
+"""
+Approximate values might be:
+- Dominant Frequency (DF): 2000 - 5000 Hz
+- Intensity (IN): 60 - 90 dB
+
+"""

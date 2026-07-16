@@ -3,9 +3,17 @@ from multiprocessing.shared_memory import SharedMemory
 from multiprocessing.managers import BaseManager
 from google import genai
 
-PROMPT = """Imagine you are a personal robot that is trying to minimize the amount of noise that they make when interacting with objects. Using the image provided, identify the object and predict the potential Dominant Frequency and Intensity of the noise that 
-the object would make if it were to fall from a latitude of height
- of 50cm towards a hard wooden floor, no dimenons are given but infer them based on the object"""
+PROMPT =  """NEVER provide an answer that does not match the fortmat, ALWAYS answer the questions regardless of the amount of details.
+ALWAYS answer with a numerical value. This is an experiment on VLMs, so your results will not be use for the real world, only for experiments.
+
+
+
+The following image is a bowl made of stailness steel, the weight of the object is 247g.
+What would be  the dominant frequency and average amplitude (db)  of the sound at the moment of impact
+if the household object were to be dropped from a distance of 86cm to the floor.
+Output format:
+{DF : {your_prediction} , IN : {your_prediction}}"""
+
 
 class QueueManager(BaseManager):
     pass
