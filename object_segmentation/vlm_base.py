@@ -8,17 +8,47 @@ import time, random
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from formatter import to_json
 
-PROMPT = """
+PROMPT_1 = """
+
+Here is an image of an object.
+
+The object weight is: 216 g.
+
+Based on the shape, volume, distribution and apparent materials in the image, please infer a single numerical value for the dominant frequency in Hz and amplitude (intensity) in dB of the noise the object will produce if it were to be dropped from height of 86cm onto hardwood.
+ 
+For reference, the results should be relative to the measured ambient noise floor RMS = -59.23 dBFS. Treat this floor as the 0 dB baseline; report the impact's level above it
+
+Take your best guess at an answer of the maximal expected noise. Your response MUST be in the following json format with no additional text:
+
+{
+DF : [your estimate of dominant frequency],
+INDB : [your estimate of intensity],
+"""
 
 
 
-The following image is a bowl made of stainlness steel, the weight of the object is 247g.
-What would be  the dominant frequency and average amplitude (db)  of the sound at the moment of impact
-if the household object were to be dropped from a distance of 86cm to the floor.
-Output format:
-{DF : {your_prediction} , IN : {your_prediction}}"""
 
+PROMPT_2 = """
+Here is an image of an object.
+
+The dimensions of the object are: upper diameter : 20.32 cm, lower diameter : 10.16 cm, height : 8.89 cm, weight : 247g.
+
+Based on the shape, volume, distribution and apparent materials in the image, please infer a single numerical value for the dominant frequency in Hz and amplitude (intensity) in dB of the noise the object will produce if it were to be dropped from height of 86cm onto hardwood.
+ 
+For reference, the results should be relative to the measured ambient noise floor RMS = -59.23 dBFS. Treat this floor as the 0 dB baseline; report the impact's level above it
+
+Take your best guess at an answer of the maximal expected noise. Your response MUST be in the following json format with no additional text:
+
+{
+DF : [your estimate of dominant frequency],
+INDB : [your estimate of intensity],
+}
+
+YOU MUST RESPOND WITH A SINGLE ESTIMATE FOR DOMINANT FREQUENCY AND INTENSITY in JSON format!
+
+"""
 # Signal handling for interruption
 interrupted = False
 
@@ -183,14 +213,38 @@ class VisionToText(OpenAIBase):
 if __name__ == "__main__":
     
     vtt = VisionToText()
+
+    object_name = "plate_216"
+
+    resultsNoDimensions = []
+    resultsWDimensions = []
+    # resultsWReference = []
+
+
+    img = cv2.imread("ceramicplate.jpg")
     
-    result = vtt.viz_to_text(img='image.jpg', prompt = PROMPT)
-    print(result) 
+    
 
 
-"""
-Approximate values might be:
-- Dominant Frequency (DF): 2000 - 5000 Hz
-- Intensity (IN): 60 - 90 dB
+    for i in range(3):
+        result =vtt.viz_to_text(img=img, prompt = PROMPT_1)
+        print(result)
+        resultsNoDimensions.append(result)
 
-"""
+        #ignore what is below this line but inside this loop for now
+
+
+
+        # resultsWDimensions.append(vtt.viz_to_text(img=img, prompt = PROMPT_2))
+        # resultsWReference.append(vtt.viz_to_text(img=img, prompt = PROMPT_3))
+    to_json(resultsNoDimensions, "recorded_outputs_no_dimensions/no_dimensions_{object_name}".format(object_name=object_name))
+
+
+
+
+
+
+
+
+
+    # to_json(resultsWDimensions, "recorded_outputs_w_dimensions/w_dimensions_{object_name}".format(object_name=object_name))
