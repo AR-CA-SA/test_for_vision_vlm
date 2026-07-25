@@ -19,13 +19,17 @@ def extract_json_objects(text, decoder = json.JSONDecoder()):
 def to_json(text_arr, file_name):
     values = []
 
-    for i in range(len(text_arr)):
-        for result in extract_json_objects(text_arr[i]):
-            print(result)
-            values.append(result)
-    
+    if isinstance(text_arr,list):
+        for i in range(len(text_arr)):
+            for result in extract_json_objects(text_arr[i]):
+                print(result)
+                values.append(result)
+        
 
-    with open(file_name.format(file_name=file_name), 'w', encoding = 'utf-8') as f:
-        json.dump(values, f, ensure_ascii=False, indent=4)
-    
+        with open(file_name.format(file_name=file_name), 'w', encoding = 'utf-8') as f:
+            json.dump(values, f, ensure_ascii=False, indent=4)
+    else:
+        with open(file_name.format(file_name=file_name), 'w', encoding = 'utf-8') as f:
+            json.dump(values, f, ensure_ascii=False, indent=4)
+        
 

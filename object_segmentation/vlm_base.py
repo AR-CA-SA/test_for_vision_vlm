@@ -30,10 +30,17 @@ INDB : [your estimate of intensity],
 
 
 
+
+
 PROMPT_2 = """
+
 Here is an image of an object.
 
-The dimensions of the object are: upper diameter : 20.32 cm, lower diameter : 10.16 cm, height : 8.89 cm, weight : 247g.
+
+
+The dimensions of the object are {Upper Diameter : 13.97 cm. Lower Diameter : 8.89 cm. Height : 0.75cm}.
+And its weight is 216g.
+
 
 Based on the shape, volume, distribution and apparent materials in the image, please infer a single numerical value for the dominant frequency in Hz and amplitude (intensity) in dB of the noise the object will produce if it were to be dropped from height of 86cm onto hardwood.
  
@@ -47,6 +54,7 @@ INDB : [your estimate of intensity],
 }
 
 YOU MUST RESPOND WITH A SINGLE ESTIMATE FOR DOMINANT FREQUENCY AND INTENSITY in JSON format!
+
 
 """
 # Signal handling for interruption
@@ -227,24 +235,12 @@ if __name__ == "__main__":
 
 
     for i in range(3):
-        result =vtt.viz_to_text(img=img, prompt = PROMPT_1)
-        print(result)
-        resultsNoDimensions.append(result)
 
         #ignore what is below this line but inside this loop for now
 
 
 
-        # resultsWDimensions.append(vtt.viz_to_text(img=img, prompt = PROMPT_2))
+        resultsWDimensions.append(vtt.viz_to_text(img=img, prompt = PROMPT_2))
         # resultsWReference.append(vtt.viz_to_text(img=img, prompt = PROMPT_3))
-    to_json(resultsNoDimensions, "recorded_outputs_no_dimensions/no_dimensions_{object_name}".format(object_name=object_name))
-
-
-
-
-
-
-
-
-
-    # to_json(resultsWDimensions, "recorded_outputs_w_dimensions/w_dimensions_{object_name}".format(object_name=object_name))
+    # to_json(resultsNoDimensions, "recorded_outputs_w_dimensions/w_dimensions_{object_name}".format(object_name=object_name))
+    to_json(resultsWDimensions, "recorded_outputs_w_dimensions/w_dimensions_{object_name}".format(object_name=object_name))
