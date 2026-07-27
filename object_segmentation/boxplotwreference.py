@@ -5,13 +5,14 @@ import pandas as pd
 
 def box_plot_maker():
     to_iterate = [
-        "recorded_outputs_no_dimensions/no_dimensions_metal_bowl_247",
-        "recorded_outputs_no_dimensions/no_dimensions_metal_pot_741",
-        "recorded_outputs_no_dimensions/no_dimensions_mug_230",
-        "recorded_outputs_no_dimensions/no_dimensions_mug_212",
-        "recorded_outputs_no_dimensions/no_dimensions_bnf_bottle_277",
-        "recorded_outputs_no_dimensions/no_dimensions_plate_average",
-        "recorded_outputs_no_dimensions/no_dimensions_glass_average"
+        "recorded_outputs_w_reference/w_reference_metal_bowl_247",
+        "recorded_outputs_w_reference/w_reference_metal_pot_741",
+        "recorded_outputs_w_reference/w_reference_mug_230",
+        "recorded_outputs_w_reference/w_reference_mug_212",
+        "recorded_outputs_w_reference/w_reference_bnf_bottle_277",
+        "recorded_outputs_w_reference/w_reference_plate_average",
+        "recorded_outputs_w_reference/w_reference_glass_average"
+
     ]
     df = pd.read_csv("impactNoiseDataUseful.csv")
 
@@ -20,7 +21,7 @@ def box_plot_maker():
     predicted_data_df = []
     predicted_data_in = []
     object_names = []
-    print(pd.read_json(to_iterate[6]).head())
+
     for i in range(len(to_iterate)):
         print(to_iterate[i])
         current_df = pd.read_json(to_iterate[i])
@@ -45,16 +46,17 @@ def box_plot_maker():
         positions=real_positions,
         widths=0.6,
         patch_artist=True,
-        boxprops=dict(facecolor = "#646D96", color = "black")
+        boxprops=dict(facecolor = "#704E7A", color = "black")
     )
     bp_pred = axs[0].boxplot(
         predicted_data_df,
         positions=pred_positions,
         widths=0.6,
         patch_artist=True,
-        boxprops=dict(facecolor = "#927E65", color = "black")
+        boxprops=dict(facecolor = "#928865", color = "black")
     )
-
+    axs[0].grid(True, alpha = 0.5)
+    axs[1].grid(True, alpha = 0.5)
     axs[0].set_xticks(base_positions)
     axs[0].set_xticklabels(object_names, rotation=90, ha="right")
     axs[0].legend(
@@ -62,7 +64,7 @@ def box_plot_maker():
         ["Real", "Predicted"],
         loc="upper right",
     )
-    axs[0].set_title("Dstribution of VLM Predicted and Real Dominant Frequency Values")
+
 
 
 
@@ -72,17 +74,16 @@ def box_plot_maker():
         positions=real_positions,
         widths=0.6,
         patch_artist=True,
-        boxprops=dict(facecolor = "#646D96", color = "black")
+        boxprops=dict(facecolor = "#704E7A", color = "black")
     )
     bp_pred = axs[1].boxplot(
         predicted_data_in,
         positions=pred_positions,
         widths=0.6,
         patch_artist=True,
-        boxprops=dict(facecolor = "#927E65", color = "black")
+        boxprops=dict(facecolor = "#928865", color = "black")
     )
-    axs[0].grid(True, alpha = 0.5)
-    axs[1].grid(True, alpha = 0.5)
+
     axs[1].set_xticks(base_positions)
     axs[1].set_xticklabels(object_names, rotation=90, ha="right")
     axs[1].legend(
@@ -90,9 +91,10 @@ def box_plot_maker():
         ["Real", "Predicted"],
         loc="upper right",
     )
-    axs[0].set_title("Dominant Frequency (Hz): Predicted vs Recorded")
-    axs[1].set_title("Intensity (dB): Predicted vs Recorded")
 
+
+    axs[0].set_title("Dominant Frequency (Hz): Predicted vs Recorded (Cross-Object Reference)")
+    axs[1].set_title("Intensity (dB): Predicted vs Recorded (Cross-Object Reference)")
     axs[0].set_ylabel("Dominant Frequency (Hz)")
     axs[1].set_ylabel("Intensity (dB)")
 

@@ -91,8 +91,8 @@ def box_plot_maker():
         ["Real", "Predicted"],
         loc="upper right",
     )
-    axs[0].set_title("Distribution of Dominant Frequency (Hz) VLM Predicted and Recorded Values Given the Dimensions of the Object")
-    axs[1].set_title("Distribution of Intensity (dB) VLM Predicted and Recorded Values Given the Dimensions of the Object")
+    axs[0].set_title("Dominant Frequency (Hz): Predicted vs Recorded (Given Object Dimensions)")
+    axs[1].set_title("Intensity (dB): Predicted vs Recorded (Given Object Dimensions)")
     axs[0].set_ylabel("Dominant Frequency (Hz)")
     axs[1].set_ylabel("Intensity (dB)")
 

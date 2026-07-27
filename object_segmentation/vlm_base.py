@@ -54,9 +54,45 @@ INDB : [your estimate of intensity],
 }
 
 YOU MUST RESPOND WITH A SINGLE ESTIMATE FOR DOMINANT FREQUENCY AND INTENSITY in JSON format!
+"""
+
+PROMPT_3 = """
+
+
+
+Here is an image of an object. Additionally, here is a table in CSV format that contains all recorded objects' dominant frequency and intensity at the moment of impact. 
+
+Object,Material,Weight (g),Description,Dominant Frequency 1 (Hz),Dominant Frequency 2 (Hz),Dominant Frequency 3 (Hz),Intensity 1 (dB),Intensity 2 (dB),Intensity 3 (dB)
+Metal Bowl,Stainless steel,247,Upper Diameter : 20.32 cm, Lower Diameter : 10.16 cm, height : 8.89 cm  ,652,686.2,680,102.47,116.66,102.97
+Metal Pot,Stainless steel,741,diameter : 19.05 cm, height 10.16 cm, handle horizontal distance : 19.05 cm,1081.711,1085.46,1075.73,105.97,108.8,107.34
+Mug #1,Ceramic,230,upper diameter : 8.26,  lower diameter : 5.76, height 7.62 cm , height of the handle 5.08cm, distance from the peak of the handle to the mug 2cm ,3257.9,3079.76,3253.95,114.86,100.12,105.23
+Mug #2,Ceramic,212,upper diameter : 8.26,  lower diameter : 5.76, height 7.62 cm , height of the handle 5.08cm, distance from the peak of the handle to the mug 2cm ,3641.04,3185.78,2997.29,108.26,110.57,99.18
+BNF Bottle,glass ,277,top cap diameter : 3.81cm, lower diameter: 6.99cm, height : 19.69cm,192.38,232.12,424.13,102.8,95.7,98.51
+Wine Glass Average,Glass,148,lower diameter : 5.4 cm , upper diameter 6.35cm, height 17.15cm,7167.43,6454.33,1234.51,107.81,101.97,99.46
+
+
+The dimensions of the object are: upper diameter : {Upper Diameter : 13.97 cm. Lower Diameter : 8.89 cm. Height : 0.75cm
+}, weight : 217g.
+
+Based on the shape, volume, distribution, apparent materials in the image, and the table of recorded acoustic characteristics, please infer a single numerical value for the dominant frequency in Hz and amplitude (intensity) in dB of the noise the object will produce if it were to be dropped from height of 86cm onto hardwood.
+ 
+For reference, the results should be relative to the measured ambient noise floor RMS = -59.23 dBFS. Treat this floor as the 0 dB baseline; report the impact's level above it
+
+Take your best guess at an answer of the maximal expected noise. Your response MUST be in the following json format with no additional text:
+
+{
+DF : [your estimate of dominant frequency],
+INDB : [your estimate of intensity],
+}
+
+YOU MUST RESPOND WITH A SINGLE ESTIMATE FOR DOMINANT FREQUENCY AND INTENSITY in JSON format!
+
+
 
 
 """
+
+
 # Signal handling for interruption
 interrupted = False
 
@@ -222,11 +258,11 @@ if __name__ == "__main__":
     
     vtt = VisionToText()
 
-    object_name = "plate_216"
+    object_name = "plate_average"
 
     resultsNoDimensions = []
     resultsWDimensions = []
-    # resultsWReference = []
+    resultsWReference = []
 
 
     img = cv2.imread("ceramicplate.jpg")
@@ -240,7 +276,7 @@ if __name__ == "__main__":
 
 
 
-        resultsWDimensions.append(vtt.viz_to_text(img=img, prompt = PROMPT_2))
-        # resultsWReference.append(vtt.viz_to_text(img=img, prompt = PROMPT_3))
+
+        resultsWReference.append(vtt.viz_to_text(img=img, prompt = PROMPT_3))
     # to_json(resultsNoDimensions, "recorded_outputs_w_dimensions/w_dimensions_{object_name}".format(object_name=object_name))
-    to_json(resultsWDimensions, "recorded_outputs_w_dimensions/w_dimensions_{object_name}".format(object_name=object_name))
+    to_json(resultsWReference, "recorded_outputs_w_reference/w_reference_{object_name}".format(object_name=object_name))
