@@ -77,7 +77,7 @@ for i in range(len(object_names)):
 ax1.set_xticks(x_positions)
 ax1.set_xticklabels(object_names, rotation=45, ha='right')
 ax1.set_ylabel('Dominant Frequency (Hz)', fontsize=12)
-ax1.set_title("Dominant Frequency (Hz): Predicted vs Recorded", fontsize=14, fontweight='bold')
+ax1.set_title("Dominant Frequency (Hz): Predicted vs Recorded (Cross-Object Reference)", fontsize=14, fontweight='bold')
 ax1.legend(loc='upper left', fontsize=10)
 ax1.grid(True, alpha=0.3, axis='y')
 
@@ -97,7 +97,7 @@ for i in range(len(object_names)):
 
 ax2.set_xticks(x_positions)
 ax2.set_xticklabels(object_names, rotation=45, ha='right')
-ax2.set_ylabel('Intensity (dB): Predicted vs Recorded (Cross-Object Reference)', fontsize=12)
+ax2.set_ylabel('Intensity (dB)', fontsize=12)
 ax2.set_title("Dominant Frequency (Hz): Predicted vs Recorded (Cross-Object Reference)", fontsize=14, fontweight='bold')
 ax2.legend(loc='upper left', fontsize=10)
 ax2.grid(True, alpha=0.3, axis='y')
